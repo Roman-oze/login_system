@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:login/home_screen.dart';
 import 'package:login/reusable_widget/reusable_widget.dart';
@@ -26,26 +27,41 @@ class _SignInScreenState extends State<SignInScreen> {
     super.initState();
   }
 
-  void login() {
-    users
-        .where(
-          'email',
-          isEqualTo: _emailTextController.text,
-        )
-        .where(
-          'password',
-          isEqualTo: _passwordTextController.text,
-        )
-        .get()
-        .then((value) {
-      final data = value.docs;
-      print(data.length);
-      print('User found');
-      if (data.isNotEmpty) {
+  void login() async {
+    try {
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailTextController.text,
+          password: _passwordTextController.text);
+      if (credential.user != null) {
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => HomeScreen()));
       }
-    }).catchError((error) => print("Failed to found user: $error"));
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        print('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        print('Wrong password provided for that user.');
+      }
+    }
+    // users
+    //     .where(
+    //       'email',
+    //       isEqualTo: _emailTextController.text,
+    //     )
+    //     .where(
+    //       'password',
+    //       isEqualTo: _passwordTextController.text,
+    //     )
+    //     .get()
+    //     .then((value) {
+    //   final data = value.docs;
+    //   print(data.length);
+    //   print('User found');
+    //   if (data.isNotEmpty) {
+    //     Navigator.push(
+    //         context, MaterialPageRoute(builder: (context) => HomeScreen()));
+    //   }
+    // }).catchError((error) => print("Failed to found user: $error"));
   }
 
   @override
@@ -74,29 +90,33 @@ class _SignInScreenState extends State<SignInScreen> {
                 SizedBox(
                   height: 10,
                 ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            onTap:(){
-                              Navigator.push(context, MaterialPageRoute(builder: (context){
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
                                 return ForgotPasswordPage();
                               },
-                              ),
-                              );
-                            },
-                            child: Text('Forgot Password',style: TextStyle(
+                            ),
+                          );
+                        },
+                        child: Text(
+                          'Forgot Password',
+                          style: TextStyle(
                               color: Colors.amber,
                               fontSize: 16,
-                              fontWeight:FontWeight.bold
-                            ),),
-                          ),
-                        ],
+                              fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    ),
-
+                    ],
+                  ),
+                ),
                 signInSignUpButton(context, true, () {
                   login();
                   // Navigator.push(context,
@@ -106,9 +126,7 @@ class _SignInScreenState extends State<SignInScreen> {
               ],
             ),
           ),
-
         ),
-
       ), // decoration:BoxDecoration(gradient: LinearGradien(Colors,),
     );
   }
@@ -136,20 +154,20 @@ class _SignInScreenState extends State<SignInScreen> {
       ],
     );
   }
-  // Widget forgetPassword(BuildContext context) {
-  //   return Container(
-  //     width: MediaQuery.of(context).size.width,
-  //     height: 35,
-  //     alignment: Alignment.bottomRight,
-  //     child: TextButton(
-  //       child: const Text(
-  //         "Forgot Password?",
-  //         style: TextStyle(color: Colors.white70),
-  //         textAlign: TextAlign.right,
-  //       ),
-  //       onPressed: () => Navigator.push(
-  //           context, MaterialPageRoute(builder: (context) => ResetPassword())),
-  //     ),
-  //   );
-  // }
+// Widget forgetPassword(BuildContext context) {
+//   return Container(
+//     width: MediaQuery.of(context).size.width,
+//     height: 35,
+//     alignment: Alignment.bottomRight,
+//     child: TextButton(
+//       child: const Text(
+//         "Forgot Password?",
+//         style: TextStyle(color: Colors.white70),
+//         textAlign: TextAlign.right,
+//       ),
+//       onPressed: () => Navigator.push(
+//           context, MaterialPageRoute(builder: (context) => ResetPassword())),
+//     ),
+//   );
+// }
 }

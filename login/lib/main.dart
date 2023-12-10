@@ -1,25 +1,59 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:login/home_screen.dart';
 import 'package:login/signin_screen.dart';
 
-void main() async{
+bool shouldUseFirebaseEmulator = false;
+late final FirebaseApp app;
+late final FirebaseAuth auth;
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  app = await Firebase.initializeApp();
+
+  auth = FirebaseAuth.instanceFor(app: app);
+
+  if (shouldUseFirebaseEmulator) {
+    await auth.useAuthEmulator('localhost', 9099);
+  }
   runApp(MyApp());
 }
-class MyApp extends StatelessWidget {
+
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool login = false;
+
+  @override
+  void initState() {
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user == null) {
+        login = false;
+        print('User is currently signed out!');
+      } else {
+        login = true;
+        print('User is signed in!');
+      }
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-       title: 'flutter',
+      title: 'flutter',
       theme: ThemeData(
-        primaryColor:Colors.deepOrangeAccent,
+        primaryColor: Colors.deepOrangeAccent,
       ),
-       home: const SignInScreen(),
-     );
-   }
+      home: login ? HomeScreen() : const SignInScreen(),
+    );
+  }
 }
