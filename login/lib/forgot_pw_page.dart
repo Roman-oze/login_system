@@ -1,5 +1,5 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:_firebase/cloud_firestore.dart';
 
 import 'package:flutter/material.dart';
@@ -14,7 +14,12 @@ class ForgotPasswordPage extends StatefulWidget {
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   TextEditingController _emailTextController = TextEditingController();
-  @override
+
+  void reset() {
+    FirebaseAuth.instance
+        .sendPasswordResetEmail(email: _emailTextController.text);
+  }
+
   // void dispose(){
   //   _emailTextController.dispose();
   //   super.dispose();
@@ -39,47 +44,53 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor:Colors.purpleAccent,
+        backgroundColor: Colors.purpleAccent,
         elevation: 0,
       ),
       body: Column(
         children: [
-          SizedBox(height: 20,),
+          SizedBox(
+            height: 20,
+          ),
           Text(
-            'Enter your Email you will get reset password',style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Colors.redAccent
-          ),),
-          SizedBox(height: 10,),
+            'Enter your Email you will get reset password',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Colors.redAccent),
+          ),
+          SizedBox(
+            height: 10,
+          ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 25.0),
             child: TextField(
-              controller: _emailTextController ,
+              controller: _emailTextController,
               decoration: InputDecoration(
                 enabledBorder: OutlineInputBorder(
-                  borderSide:BorderSide(color: Colors.black),
+                  borderSide: BorderSide(color: Colors.black),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                      color: Colors.purpleAccent),
+                  borderSide: BorderSide(color: Colors.purpleAccent),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 fillColor: Colors.white70,
                 filled: true,
                 hintText: 'Email',
               ),
-
             ),
           ),
-          SizedBox(height: 20,),
-
-          // MaterialButton(onPressed: passwordReset,
-          //   child: Text('Reset Password'),
-          //   color: Colors.blueAccent,
-          //
-          // )
+          SizedBox(
+            height: 20,
+          ),
+          MaterialButton(
+            onPressed: () {
+              reset();
+            },
+            child: Text('Reset Password'),
+            color: Colors.blueAccent,
+          )
         ],
       ),
     );

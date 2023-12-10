@@ -1,5 +1,6 @@
 // import 'package:firebase_signin/reusable_widgets/reusable_widget.dart;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:login/home_screen.dart';
 import 'package:login/signin_screen.dart';
@@ -19,22 +20,50 @@ class _SignUpScreenState extends State<SignUpScreen> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   late CollectionReference users;
 
+  Future? _future;
+
   @override
   void initState() {
     users = firestore.collection('users');
     super.initState();
   }
 
-  Future<void> addUser() {
-    // Call the user's CollectionReference to add a new user
-    return users.add({
-      'full_name': _nameTextController.text, // John Doe
-      'email': _emailTextController.text, // Stokes and Sons
-      'password': _passwordTextController.text // 42
-    }).then((value) {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => SignInScreen()));
-    }).catchError((error) => print("Failed to add user: $error"));
+  Future<void> addUser() async {
+    print('----------start-----------');
+    try {
+      setState(() {
+        _future = FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _emailTextController.text,
+          password: _passwordTextController.text,
+        );
+      });
+
+      UserCredential credential = await _future;
+      print('create-------- ${credential.additionalUserInfo?.profile}');
+
+      if (credential.user != null) {
+        users.add({
+          'full_name': _nameTextController.text, // John Doe
+          'email': _emailTextController.text, // Stokes and Sons
+          'password': _passwordTextController.text // 42
+        }).then((value) async {
+          await FirebaseAuth.instance.signOut();
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => SignInScreen()));
+        }).catchError((error) => print("Failed to add user: $error"));
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      }else{
+        print('The account create failed $e');
+      }
+    } catch (e) {
+      print('The password create failed');
+      print(e);
+    }
   }
 
   @override
@@ -78,8 +107,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 signInSignUpButton(context, false, () {
                   print("Sign Up");
                   addUser();
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => HomeScreen()));
+                  // Navigator.push(context,
+                  //     MaterialPageRoute(builder: (context) => HomeScreen()));
                 })
               ],
             ),

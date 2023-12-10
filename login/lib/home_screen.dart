@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:login/signin_screen.dart';
 
@@ -9,12 +10,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int counter =0;
-  void incrementcounter(){
+  int counter = 0;
+
+  void incrementcounter() {
     setState(() {
       counter++;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
           backgroundColor: Colors.indigo,
         ),
         body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
           child: Container(
               child: Center(
                   child: Column(
@@ -36,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 Image.asset(
                   'assets/daffodil.jpg',
-                  height:70.0,
+                  height: 70.0,
                   width: 250.0,
                 ),
                 SizedBox(
@@ -50,12 +53,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     backgroundImage: AssetImage('assets/dp - Copy.jpg'),
                   ),
                 ),
-                SizedBox(height: 10,),
+                SizedBox(
+                  height: 10,
+                ),
                 Divider(
-                thickness: 1.0,
+                  thickness: 1.0,
                   color: Colors.black,
                 ),
-                        SizedBox(height: 10,),
+                SizedBox(
+                  height: 10,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -123,16 +130,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       SizedBox(
                         width: 5.0,
                       ),
-                     Container(
-                       color: Colors.amber,
+                      Container(
+                        color: Colors.amber,
                         child: Padding(
-                          padding: const EdgeInsets.fromLTRB(10,5, 10, 5),
-                          child: Text(' Spent Hours : $counter',style:TextStyle(
-                            fontSize: 17.0,
-                            fontWeight:FontWeight.bold,
-                            color:Colors.black54,
-
-                          ),),
+                          padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                          child: Text(
+                            ' Spent Hours : $counter',
+                            style: TextStyle(
+                              fontSize: 17.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black54,
+                            ),
+                          ),
                         ),
                       ),
                     ]),
@@ -140,12 +149,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 30.0,
                 ),
                 ElevatedButton(
-                    onPressed: incrementcounter, child: Text('Track',style: TextStyle(
-                  fontSize: 17.0,
-                  fontWeight:FontWeight.bold,
-                  color:Colors.white,
-                ),)),
-                SizedBox(height: 40.0,),
+                    onPressed: incrementcounter,
+                    child: Text(
+                      'Track',
+                      style: TextStyle(
+                        fontSize: 17.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    )),
+                SizedBox(
+                  height: 40.0,
+                ),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -157,7 +172,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             size: 30,
                             color: Colors.black,
                           ),
-                          onPressed: () {
+                          onPressed: () async {
+                            await FirebaseAuth.instance.signOut();
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
