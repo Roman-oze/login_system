@@ -30,6 +30,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   bool login = false;
+  Future? _future;
 
   @override
   void initState() {
@@ -53,7 +54,12 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primaryColor: Colors.deepOrangeAccent,
       ),
-      home: login ? HomeScreen() : const SignInScreen(),
+      home: StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          return snapshot.data != null ? HomeScreen() : const SignInScreen();
+        },
+      ),
     );
   }
 }
